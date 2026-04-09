@@ -1,5 +1,6 @@
 import Cocoa
 import FinderSync
+import UniformTypeIdentifiers
 
 @objc(FinderSync)
 final class FinderSync: FIFinderSync {
@@ -36,9 +37,6 @@ final class FinderSync: FIFinderSync {
     private let creationActions: [MenuAction] = [
         MenuAction(titleKey: "Text File", icon: .fileType("txt"), selector: #selector(createNewTextFile(_:))),
         MenuAction(titleKey: "Markdown File", icon: .fileType("md"), selector: #selector(createNewMarkdownFile(_:))),
-        MenuAction(titleKey: "Microsoft Word Document", icon: .fileType("docx"), selector: #selector(createNewWordDocument(_:))),
-        MenuAction(titleKey: "Microsoft Excel Spreadsheet", icon: .fileType("xlsx"), selector: #selector(createNewExcelDocument(_:))),
-        MenuAction(titleKey: "Microsoft PowerPoint Presentation", icon: .fileType("pptx"), selector: #selector(createNewPowerPointDocument(_:))),
         MenuAction(titleKey: "Pages Document", icon: .fileType("pages"), selector: #selector(createNewPagesDocument(_:))),
         MenuAction(titleKey: "Numbers Spreadsheet", icon: .fileType("numbers"), selector: #selector(createNewNumbersDocument(_:))),
         MenuAction(titleKey: "Keynote Presentation", icon: .fileType("key"), selector: #selector(createNewKeynoteDocument(_:))),
@@ -108,160 +106,6 @@ final class FinderSync: FIFinderSync {
         }
     }
 
-    @objc private func createNewWordDocument(_ sender: Any?) {
-        createFile(kind: .openXML(fileExtension: "docx", structure: [
-            "[Content_Types].xml": """
-            <?xml version="1.0" encoding="UTF-8"?>
-            <Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
-              <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
-              <Default Extension="xml" ContentType="application/xml"/>
-              <Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>
-              <Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/>
-            </Types>
-            """,
-            "_rels/.rels": """
-            <?xml version="1.0" encoding="UTF-8"?>
-            <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
-              <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>
-            </Relationships>
-            """,
-            "word/_rels/document.xml.rels": """
-            <?xml version="1.0" encoding="UTF-8"?>
-            <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
-              <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>
-            </Relationships>
-            """,
-            "word/styles.xml": """
-            <?xml version="1.0" encoding="UTF-8"?>
-            <w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
-              <w:docDefaults>
-                <w:rPrDefault>
-                  <w:rPr>
-                    <w:rFonts w:ascii="Calibri" w:hAnsi="Calibri" w:cs="Calibri"/>
-                    <w:sz w:val="22"/>
-                    <w:szCs w:val="22"/>
-                  </w:rPr>
-                </w:rPrDefault>
-                <w:pPrDefault>
-                  <w:pPr>
-                    <w:spacing w:after="0" w:line="240" w:lineRule="auto"/>
-                  </w:pPr>
-                </w:pPrDefault>
-              </w:docDefaults>
-              <w:style w:type="paragraph" w:default="1" w:styleId="Normal">
-                <w:name w:val="Normal"/>
-                <w:rPr>
-                  <w:rFonts w:ascii="Calibri" w:hAnsi="Calibri" w:cs="Calibri"/>
-                  <w:sz w:val="22"/>
-                  <w:szCs w:val="22"/>
-                </w:rPr>
-              </w:style>
-            </w:styles>
-            """,
-            "word/document.xml": """
-            <?xml version="1.0" encoding="UTF-8"?>
-            <w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
-              <w:body>
-                <w:p><w:r><w:t></w:t></w:r></w:p>
-              </w:body>
-            </w:document>
-            """,
-        ]))
-    }
-
-    @objc private func createNewExcelDocument(_ sender: Any?) {
-        createFile(kind: .openXML(fileExtension: "xlsx", structure: [
-            "[Content_Types].xml": """
-            <?xml version="1.0" encoding="UTF-8"?>
-            <Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
-              <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
-              <Default Extension="xml" ContentType="application/xml"/>
-              <Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>
-              <Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>
-              <Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>
-            </Types>
-            """,
-            "_rels/.rels": """
-            <?xml version="1.0" encoding="UTF-8"?>
-            <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
-              <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>
-            </Relationships>
-            """,
-            "xl/workbook.xml": """
-            <?xml version="1.0" encoding="UTF-8"?>
-            <workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
-              <sheets><sheet name="Sheet1" sheetId="1" r:id="rId1"/></sheets>
-            </workbook>
-            """,
-            "xl/_rels/workbook.xml.rels": """
-            <?xml version="1.0" encoding="UTF-8"?>
-            <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
-              <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/>
-              <Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>
-            </Relationships>
-            """,
-            "xl/styles.xml": """
-            <?xml version="1.0" encoding="UTF-8"?>
-            <styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
-              <fonts count="1"><font><sz val="11"/><name val="Calibri"/><family val="2"/></font></fonts>
-              <fills count="2"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill></fills>
-              <borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders>
-              <cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>
-              <cellXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/></cellXfs>
-            </styleSheet>
-            """,
-            "xl/worksheets/sheet1.xml": """
-            <?xml version="1.0" encoding="UTF-8"?>
-            <worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
-              <sheetData/>
-            </worksheet>
-            """,
-        ]))
-    }
-
-    @objc private func createNewPowerPointDocument(_ sender: Any?) {
-        createFile(kind: .openXML(fileExtension: "pptx", structure: [
-            "[Content_Types].xml": """
-            <?xml version="1.0" encoding="UTF-8"?>
-            <Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
-              <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
-              <Default Extension="xml" ContentType="application/xml"/>
-              <Override PartName="/ppt/presentation.xml" ContentType="application/vnd.openxmlformats-officedocument.presentationml.presentation.main+xml"/>
-              <Override PartName="/ppt/slides/slide1.xml" ContentType="application/vnd.openxmlformats-officedocument.presentationml.slide+xml"/>
-            </Types>
-            """,
-            "_rels/.rels": """
-            <?xml version="1.0" encoding="UTF-8"?>
-            <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
-              <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="ppt/presentation.xml"/>
-            </Relationships>
-            """,
-            "ppt/presentation.xml": """
-            <?xml version="1.0" encoding="UTF-8"?>
-            <p:presentation xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
-              <p:sldIdLst><p:sldId id="256" r:id="rId1"/></p:sldIdLst>
-            </p:presentation>
-            """,
-            "ppt/_rels/presentation.xml.rels": """
-            <?xml version="1.0" encoding="UTF-8"?>
-            <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
-              <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/slide" Target="slides/slide1.xml"/>
-            </Relationships>
-            """,
-            "ppt/slides/slide1.xml": """
-            <?xml version="1.0" encoding="UTF-8"?>
-            <p:sld xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main">
-              <p:cSld>
-                <p:spTree>
-                  <p:nvGrpSpPr><p:cNvPr id="1" name=""/><p:cNvGrpSpPr/><p:nvPr/></p:nvGrpSpPr>
-                  <p:grpSpPr/>
-                </p:spTree>
-              </p:cSld>
-            </p:sld>
-            """,
-        ]))
-    }
-
     @objc private func createNewPagesDocument(_ sender: Any?) {
         createFile(kind: .template(resourceName: "Blank", fileExtension: "pages"))
     }
@@ -298,7 +142,8 @@ final class FinderSync: FIFinderSync {
         let image: NSImage
         switch icon {
         case let .fileType(fileType):
-            image = NSWorkspace.shared.icon(forFileType: fileType)
+            let contentType = UTType(filenameExtension: fileType) ?? .data
+            image = NSWorkspace.shared.icon(for: contentType)
         }
 
         image.size = Self.menuIconSize

@@ -13,7 +13,7 @@
 
 </div>
 
-One of the many things that pissed me off after switching from Windows to Mac was that I couldn't create a new text file or word document off of a right click in Finder (file explorer).
+One of the many things that pissed me off after switching from Windows to Mac was that I couldn't create a new text file off of a right click in Finder (file explorer).
 
 So I made **MacNewFile**!!
 
@@ -29,7 +29,6 @@ MacNewFile is lightweight and simple. You right click anywhere in Finder (or on 
 - Can create the following apps from the Finder right-click menu:
     - Text file
     - Markdown file
-    - Microsoft Word, Excel, and Powerpoint
     - Apple Pages, Numbers, and Keynote
 
 - Settings menu to customize MacNewFile features (**ONLY IN XCODE FORK INSTALL** - more info later)
