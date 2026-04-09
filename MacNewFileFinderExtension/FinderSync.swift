@@ -3,6 +3,12 @@ import FinderSync
 
 @objc(FinderSync)
 final class FinderSync: FIFinderSync {
+    private static let menuIconSize = NSSize(width: 16, height: 16)
+
+    private enum MenuIcon {
+        case fileType(String)
+    }
+
     private enum FileCreationKind {
         case empty(fileExtension: String)
         case template(resourceName: String, fileExtension: String)
@@ -18,24 +24,24 @@ final class FinderSync: FIFinderSync {
 
     private struct MenuAction {
         let titleKey: String
-        let symbolName: String
+        let icon: MenuIcon?
         let selector: Selector
     }
 
     private let quickActions: [MenuAction] = [
-        MenuAction(titleKey: "Copy Path", symbolName: "doc.on.doc", selector: #selector(copyPathToClipboard(_:))),
-        MenuAction(titleKey: "Open New Terminal", symbolName: "terminal", selector: #selector(openTerminalAtPath(_:))),
+        MenuAction(titleKey: "Copy Path", icon: nil, selector: #selector(copyPathToClipboard(_:))),
+        MenuAction(titleKey: "Open New Terminal", icon: nil, selector: #selector(openTerminalAtPath(_:))),
     ]
 
     private let creationActions: [MenuAction] = [
-        MenuAction(titleKey: "Text File", symbolName: "doc.text", selector: #selector(createNewTextFile(_:))),
-        MenuAction(titleKey: "Markdown File", symbolName: "text.alignleft", selector: #selector(createNewMarkdownFile(_:))),
-        MenuAction(titleKey: "Microsoft Word Document", symbolName: "doc.richtext", selector: #selector(createNewWordDocument(_:))),
-        MenuAction(titleKey: "Microsoft Excel Spreadsheet", symbolName: "tablecells", selector: #selector(createNewExcelDocument(_:))),
-        MenuAction(titleKey: "Microsoft PowerPoint Presentation", symbolName: "rectangle.on.rectangle.angled", selector: #selector(createNewPowerPointDocument(_:))),
-        MenuAction(titleKey: "Pages Document", symbolName: "doc.badge.plus", selector: #selector(createNewPagesDocument(_:))),
-        MenuAction(titleKey: "Numbers Spreadsheet", symbolName: "tablecells.badge.ellipsis", selector: #selector(createNewNumbersDocument(_:))),
-        MenuAction(titleKey: "Keynote Presentation", symbolName: "play.rectangle.on.rectangle", selector: #selector(createNewKeynoteDocument(_:))),
+        MenuAction(titleKey: "Text File", icon: .fileType("txt"), selector: #selector(createNewTextFile(_:))),
+        MenuAction(titleKey: "Markdown File", icon: .fileType("md"), selector: #selector(createNewMarkdownFile(_:))),
+        MenuAction(titleKey: "Microsoft Word Document", icon: .fileType("docx"), selector: #selector(createNewWordDocument(_:))),
+        MenuAction(titleKey: "Microsoft Excel Spreadsheet", icon: .fileType("xlsx"), selector: #selector(createNewExcelDocument(_:))),
+        MenuAction(titleKey: "Microsoft PowerPoint Presentation", icon: .fileType("pptx"), selector: #selector(createNewPowerPointDocument(_:))),
+        MenuAction(titleKey: "Pages Document", icon: .fileType("pages"), selector: #selector(createNewPagesDocument(_:))),
+        MenuAction(titleKey: "Numbers Spreadsheet", icon: .fileType("numbers"), selector: #selector(createNewNumbersDocument(_:))),
+        MenuAction(titleKey: "Keynote Presentation", icon: .fileType("key"), selector: #selector(createNewKeynoteDocument(_:))),
     ]
 
     override init() {
@@ -76,7 +82,6 @@ final class FinderSync: FIFinderSync {
             .forEach(newFileMenu.addItem(_:))
 
         let mainItem = NSMenuItem(title: NSLocalizedString("New File", comment: "Finder new file submenu"), action: nil, keyEquivalent: "")
-        mainItem.image = makeSymbolImage(named: "plus", accessibilityDescription: mainItem.title)
         mainItem.submenu = newFileMenu
         menu.addItem(mainItem)
 
@@ -280,11 +285,24 @@ final class FinderSync: FIFinderSync {
     private func makeMenuItem(for action: MenuAction) -> NSMenuItem {
         let item = NSMenuItem(title: NSLocalizedString(action.titleKey, comment: "Finder menu item"), action: action.selector, keyEquivalent: "")
 
-        if let image = makeSymbolImage(named: action.symbolName, accessibilityDescription: item.title) {
+        if let image = makeMenuIcon(for: action.icon) {
             item.image = image
         }
 
         return item
+    }
+
+    private func makeMenuIcon(for icon: MenuIcon?) -> NSImage? {
+        guard let icon else { return nil }
+
+        let image: NSImage
+        switch icon {
+        case let .fileType(fileType):
+            image = NSWorkspace.shared.icon(forFileType: fileType)
+        }
+
+        image.size = Self.menuIconSize
+        return image
     }
 
     private func targetDirectoryURL() -> URL? {
@@ -414,7 +432,7 @@ final class FinderSync: FIFinderSync {
     }
 
     private func makeSymbolImage(named symbolName: String, accessibilityDescription: String?) -> NSImage? {
-        let configuration = NSImage.SymbolConfiguration(pointSize: 14, weight: .regular, scale: .medium)
+        let configuration = NSImage.SymbolConfiguration(pointSize: 12, weight: .regular, scale: .small)
         let image = NSImage(systemSymbolName: symbolName, accessibilityDescription: accessibilityDescription)?
             .withSymbolConfiguration(configuration)
         image?.isTemplate = true
